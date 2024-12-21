@@ -38,7 +38,22 @@ async function run() {
   try {
     const usersCollection = client.db("NextGenPhnDb").collection("users");
 
-
+    app.post("/users", async (req, res) => {
+        const user = req.body;
+        const query = { email: user.email };
+        const previousUser = await usersCollection.findOne(query);
+        if (previousUser) {
+          return res.send({ message: "user already exist" });
+        }
+        const result = await usersCollection.insertOne(user);
+        res.send(result);
+      });
+  
+      // get users
+      app.get("/allUsers", async (req, res) => {
+        const result = await usersCollection.find().toArray();
+        res.send(result);
+      });
 
 
 
