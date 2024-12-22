@@ -134,7 +134,7 @@ app.patch("/seller/:id", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const user = await usersCollection.findOne(query);
-      const result = { admin: user?.role === "seller" };
+      const result = { seller: user?.role === "seller" };
       res.send(result);
     });
 
