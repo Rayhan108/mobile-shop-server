@@ -121,6 +121,22 @@ app.patch("/seller/:id", async (req, res) => {
     res.send(result);
   });
 
+    // get admin role
+    app.get("/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const result = { admin: user?.role === "admin" };
+      res.send(result);
+    });
+    // get seller role
+    app.get("/seller/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const result = { admin: user?.role === "seller" };
+      res.send(result);
+    });
 
 
 
