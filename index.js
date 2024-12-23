@@ -80,6 +80,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const usersCollection = client.db("NextGenPhnDb").collection("users");
+    const productsCollection = client.db("NextGenPhnDb").collection("products");
 
 //get token
     app.post('/authentication',(req,res)=>{
@@ -169,6 +170,28 @@ const query = { _id: new ObjectId(id) };
 const result = await usersCollection.deleteOne(query);
 res.send(result);
 })
+//seller 
+//add products
+app.post("/seller/addProduct", async (req, res) => {
+  const newProduct = req.body;
+
+  const result = await productsCollection.insertOne(newProduct);
+  res.send(result);
+});
+
+ // get products for each seller
+ app.get("/product/:email", async (req, res) => {
+  const email = req.params.email;
+  const query = { sellerEmail: email };
+  const result = await productsCollection.find(query).toArray();
+  res.send(result);
+});
+//get all products
+ app.get("/allProducts", async (req, res) => {
+ 
+  const result = await productsCollection.find().toArray();
+  res.send(result);
+});
 
 
 
