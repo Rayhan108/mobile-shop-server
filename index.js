@@ -188,10 +188,61 @@ app.post("/seller/addProduct", async (req, res) => {
 });
 //get all products
  app.get("/allProducts", async (req, res) => {
- 
-  const result = await productsCollection.find().toArray();
+ const {title,sort,category,brand,filter}=req.query;
+ const query={};
+ if(title){
+  query.title={$regex:title,$options:"i"}
+ }
+ if(category){
+  query.category={$regex:category,$options:"i"}
+ }
+
+ if(brand){
+  query.brand=brand
+ }
+ const sortOption = sort === 'asc'?1:-1;
+  const result = await productsCollection.find(query).sort({price:sortOption}).toArray();
   res.send(result);
 });
+   // update products
+   app.patch("/updateProduct/:id", async (req, res) => {
+    const id = req.params.id;
+    const updateProduct = req.body;
+
+    const filter = { _id: new ObjectId(id) };
+    const option = { upsert: true };
+
+    const updateDoc = {
+      $set: {
+      
+        price: updateProduct.price,
+        quantity: updateProduct.quantity,
+      },
+    };
+    const result = await productsCollection.updateOne(
+      filter,
+      updateDoc,
+      option
+    );
+
+    res.send(result);
+  });
+// get single product using params
+app.get("/single-product/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await productsCollection.findOne(query);
+
+  res.send(result);
+});
+
+//delete product
+app.delete("/product/delete/:id",async (req,res)=>{
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await productsCollection.deleteOne(query);
+  res.send(result);
+  })
 
 
 
