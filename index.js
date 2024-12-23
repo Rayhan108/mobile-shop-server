@@ -19,23 +19,44 @@ app.use(express.json());
 
 // jwt verify middleware
 
-const verifyAccess = (req, res, next) => {
+const verifyJWT = (req, res, next) => {
     const authorization = req.headers.authorization;
+    console.log(authorization);
     if (!authorization) {
       return res.status(401).send({ error: true, message: 'You are not valid user,unauthorized access ' });
     }
   
     const token = authorization.split(' ')[1];
-  
+  // console.log(token);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
       if (err) {
         return res.status(401).send({ error: true, message: 'You are not valid user,unauthorized access' })
       }
       req.decoded = decoded;
+      // console.log(req.decoded);
       next();
     })
   }
 
+  const veryfySeller=async(req,res,next)=>{
+    const email = req.decoded.email;
+    const query = {email}
+    const user = await usersCollection.findOne(query);
+    if(user?.role !== 'seller'){
+      return res.send({message:"Forbidden access"})
+    }
+    next()
+  }
+  const veryfyAdmin=async(req,res,next)=>{
+    const email = req.decoded.email;
+    // console.log(email);
+    const query = {email}
+    const user = await usersCollection.findOne(query);
+    if(user?.role !== 'admin'){
+      return res.send({message:"Forbidden access"})
+    }
+    next()
+  }
 
 
 
@@ -59,9 +80,11 @@ async function run() {
   try {
     const usersCollection = client.db("NextGenPhnDb").collection("users");
 
-    app.post('/jwt',(req,res)=>{
-        const user = req.body;
-        const token =jwt.sign(user,process.env.ACCESS_SECRET_TOKEN,{expiresIn:'1h'})
+//get token
+    app.post('/authentication',(req,res)=>{
+        const {email} = req.body;
+        console.log(email);
+        const token =jwt.sign(email,process.env.ACCESS_SECRET_TOKEN,{expiresIn:"1d"})
         res.send({token});
       
       })
