@@ -81,6 +81,8 @@ async function run() {
   try {
     const usersCollection = client.db("NextGenPhnDb").collection("users");
     const productsCollection = client.db("NextGenPhnDb").collection("products");
+    const cartCollection = client.db("NextGenPhnDb").collection("myCart");
+    const wishListCollection = client.db("NextGenPhnDb").collection("wishList");
 
 //get token
     app.post('/authentication',(req,res)=>{
@@ -178,6 +180,43 @@ app.post("/seller/addProduct", async (req, res) => {
   const result = await productsCollection.insertOne(newProduct);
   res.send(result);
 });
+//add products on cart
+app.post("/addToCart/:id/:email", async (req, res) => {
+  const id = req.params.id;
+  const email = req.params.email;
+  const query = { _id: new ObjectId(id) };
+  const product = await productsCollection.findOne(query);
+const newProd = {...product,buyerEmail:email}
+  const result = await cartCollection.insertOne(newProd);
+  res.send(result);
+});
+
+//get products on cart
+app.get("/myCart/:email", async (req, res) => {
+  const email = req.params.email;
+  const query = {buyerEmail: email };
+  const result = await cartCollection.find(query).toArray();
+  res.send(result);
+});
+//add products on wishList
+app.post("/wishList/:id/:email", async (req, res) => {
+  const id = req.params.id;
+  const email = req.params.email;
+  const query = { _id: new ObjectId(id) };
+  const product = await productsCollection.findOne(query);
+const newProd = {...product,buyerEmail:email}
+  const result = await cartCollection.insertOne(newProd);
+  res.send(result);
+});
+
+//get products on Wishlist
+app.get("/wishList/:email", async (req, res) => {
+  const email = req.params.email;
+  const query = {buyerEmail: email };
+  const result = await cartCollection.find(query).toArray();
+  res.send(result);
+});
+
 
  // get products for each seller
  app.get("/product/:email", async (req, res) => {
