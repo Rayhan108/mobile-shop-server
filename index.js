@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 var jwt = require('jsonwebtoken');
+
 const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -161,7 +162,13 @@ app.patch("/seller/:id", async (req, res) => {
       res.send(result);
     });
 
-
+//delete user
+app.delete("/user/delete/:id",async (req,res)=>{
+const id = req.params.id;
+const query = { _id: new ObjectId(id) };
+const result = await usersCollection.deleteOne(query);
+res.send(result);
+})
 
 
 
